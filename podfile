@@ -1,0 +1,9 @@
+platform :ios, '13.0'
+
+target 'ProfileTableViewArchitecture' do
+  use_frameworks!
+
+	pod 'PureLayout'
+	pod ‘Firebase/Database’
+
+end
