@@ -61,14 +61,14 @@ final class ProfileViewModel: NSObject
     
     private func getReloadableSections(from items: [ProfileViewModelItem]) -> [ReloadableSection<RowItem>]
     {
-        return items.enumerated().map {
+        return items.map {
             // for each section create a ReloadableRow for each of the row items
             // the value of the ReloadableRow is the row item
-            let reladableRows = $0.element.rowItems.enumerated().map {
-                ReloadableRow(key: $0.element.rowId, value: $0.element, index: $0.offset)
+            let reladableRows = $0.rowItems.map {
+                ReloadableRow(key: $0.rowId, value: $0)
             }
             // create a ReloadableSection for each section w/ an array of ReloadableRows
-            return ReloadableSection(key: $0.element.sectionId, rows: reladableRows, index: $0.offset)
+            return ReloadableSection(key: $0.sectionId, rows: reladableRows)
         }
     }
 }

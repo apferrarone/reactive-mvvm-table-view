@@ -14,25 +14,55 @@ struct ReloadableSection<T: Equatable>: Equatable
 {
    var key: String // unique id for items
    var rows: [ReloadableRow<T>] // [items] for this section usually
-   var index: Int // index of section item in datasource
-    
+        
     static func ==(lhs: ReloadableSection, rhs: ReloadableSection) -> Bool
     {
        return lhs.key == rhs.key && lhs.rows == rhs.rows
     }
 }
 
-// MARK: - Reloadable Cells
+struct ReloadableSectionData<T: Equatable>
+{
+    var sections = [ReloadableSection<T>]()
+    
+    func index(of section: ReloadableSection<T>) -> Int?
+    {
+        return self.sections.firstIndex { $0.key == section.key }
+    }
+    
+    subscript(key: String) -> ReloadableSection<T>? {
+        get {
+            return self.sections.first { $0.key == key }
+        }
+    }
+}
+
+// MARK: - Reloadable Rows
 
 struct ReloadableRow<T: Equatable>: Equatable
 {
     var key: String
     var value: T
-    var index: Int // index of row in datasource
     
     static func ==(lhs: ReloadableRow, rhs: ReloadableRow) -> Bool
     {
        return lhs.key == rhs.key && lhs.value == rhs.value
+    }
+}
+
+struct ReloadableRowData<T: Equatable>
+{
+    var rows = [ReloadableRow<T>]()
+    
+    func index(of row: ReloadableRow<T>) -> Int?
+    {
+        return self.rows.firstIndex { $0.key == row.key }
+    }
+    
+    subscript(key: String) -> ReloadableRow<T>? {
+        get {
+            return self.rows.first { $0.key == key }
+        }
     }
 }
 
@@ -72,28 +102,32 @@ class TableViewDiffCalculator
         let uniqueSectionChanges = (oldSections + newSections)
             .map { $0.key }
             .filterDuplicates()
-        
+                
         // now figure out which sections were changed, deleted, or are new and need to be inserted
         for key in uniqueSectionChanges {
-            let oldSection = oldSections.first { $0.key == key }
-            let newSection = newSections.first { $0.key == key }
+            let oldSectionData = ReloadableSectionData(sections: oldSections)
+            let oldSection = oldSectionData[key]
+            let newSectionData = ReloadableSectionData(sections: newSections)
+            let newSection = newSectionData[key]
             
             // if section exists in old & new & they are different (could be the same) -> section has been updated, calculate the row diff
             if let oldSection = oldSection, let newSection = newSection {
-                if oldSection != newSection {
-                    let calculatedRowChanges = self.calculateRowChanges(oldSection: oldSection, newSection: newSection)
+                if oldSection != newSection,
+                    let newSectionIndex = newSectionData.index(of: newSection),
+                    let oldSectionIndex = oldSectionData.index(of: oldSection) {
+                    let calculatedRowChanges = self.calculateRowChanges(oldSection: oldSection, oldSectionIndex: oldSectionIndex, newSection: newSection, newSectionIndex: newSectionIndex)
                     rowChanges.rowsToReload.append(contentsOf: calculatedRowChanges.rowsToReload)
                     rowChanges.rowsToDelete.append(contentsOf: calculatedRowChanges.rowsToDelete)
                     rowChanges.rowsToInsert.append(contentsOf: calculatedRowChanges.rowsToInsert)
                 }
             }
             // if section only exists in old -> it's been deleted
-            else if let oldSection = oldSection {
-                sectionChanges.deletes.append(oldSection.index)
+            else if let oldSection = oldSection, let oldSectionIndex = oldSections.firstIndex(where: { $0.key == oldSection.key }) {
+                sectionChanges.deletes.append(oldSectionIndex)
             }
             // if section exists in only new -> it's been inserted
-            else if let newSection = newSection {
-                sectionChanges.inserts.append(newSection.index)
+            else if let newSection = newSection, let newSectionIndex = newSections.firstIndex(where: { $0.key == newSection.key }) {
+                sectionChanges.inserts.append(newSectionIndex)
             }
         }
         
@@ -101,36 +135,36 @@ class TableViewDiffCalculator
         return sectionChanges
     }
     
-    func calculateRowChanges<T>(oldSection: ReloadableSection<T>, newSection: ReloadableSection<T>) -> RowChanges
+    func calculateRowChanges<T>(oldSection: ReloadableSection<T>, oldSectionIndex: Int, newSection: ReloadableSection<T>, newSectionIndex: Int) -> RowChanges
     {
         // capture the diff of the rows (cells) in rowChanges - the same as we do w/ sections
         let rowChanges = RowChanges()
-        let oldRows = oldSection.rows
-        let newRows = newSection.rows
         
         // get all the keys involved - the ones being deleted, updated, and inserted
-        let uniqueCellChanges = (oldRows + newRows)
+        let uniqueCellChanges = (oldSection.rows + newSection.rows)
             .map { $0.key }
             .filterDuplicates()
         
         // figure out which keys were changed, deleted, or are new and need to be inserted
         for key in uniqueCellChanges {
-            let oldRow = oldRows.first { $0.key == key }
-            let newRow = newRows.first { $0.key == key }
+            let oldRowData = ReloadableRowData(rows: oldSection.rows)
+            let oldRow = oldRowData[key]
+            let newRowData = ReloadableRowData(rows: newSection.rows)
+            let newRow = newRowData[key]
             
             // if row exists in old & new & they are different (could be the same) -> reload the row
             if let oldRow = oldRow, let newRow = newRow {
-                if oldRow != newRow {
-                    rowChanges.rowsToReload.append(IndexPath(row: oldRow.index, section: oldSection.index))
+                if oldRow != newRow, let rowIndex = oldRowData.index(of: oldRow) {
+                    rowChanges.rowsToReload.append(IndexPath(row: rowIndex, section: oldSectionIndex))
                 }
             }
             // if row only exists in old -> it's been deleted
-            else if let oldRow = oldRow {
-                rowChanges.rowsToDelete.append(IndexPath(row: oldRow.index, section: oldSection.index))
+            else if let oldRow = oldRow, let rowIndex = oldRowData.index(of: oldRow) {
+                rowChanges.rowsToDelete.append(IndexPath(row: rowIndex, section: oldSectionIndex))
             }
             // if row only exists in new -> it's been inserted
-            else if let newRow = newRow {
-                rowChanges.rowsToInsert.append(IndexPath(row: newRow.index, section: newSection.index))
+            else if let newRow = newRow, let rowIndex = newRowData.index(of: newRow) {
+                rowChanges.rowsToInsert.append(IndexPath(row: rowIndex, section: newSectionIndex))
             }
         }
     
