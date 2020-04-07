@@ -4,6 +4,7 @@ target 'ProfileTableViewArchitecture' do
   use_frameworks!
 
 	pod 'PureLayout'
+	pod 'SDWebImage', '~> 5.0'
 	pod ‘Firebase/Database’
 
 end

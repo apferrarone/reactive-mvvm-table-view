@@ -17,7 +17,7 @@ class AboutCell: UITableViewCell
     private lazy var aboutLabel: UILabel = {
         let label = UILabel()
         label.textColor = .white
-        label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
+        label.font = UIFont(name: "AvenirNext-Regular", size: 14.0)!
         label.numberOfLines = 0
         label.lineBreakMode = .byTruncatingTail
         return label
@@ -47,7 +47,10 @@ class AboutCell: UITableViewCell
         self.selectionStyle = .none
         
         self.contentView.addSubview(self.aboutLabel)
-        self.aboutLabel.autoPinEdgesToSuperviewMargins()
+        self.aboutLabel.autoPinEdge(toSuperviewMargin: .left)
+        self.aboutLabel.autoPinEdge(toSuperviewMargin: .right)
+        self.aboutLabel.autoPinEdge(toSuperviewMargin: .top)
+        self.aboutLabel.autoPinEdge(toSuperviewMargin: .bottom)
     }
 }
 

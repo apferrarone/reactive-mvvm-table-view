@@ -16,8 +16,8 @@ class KeyValueCell: UITableViewCell
     
     private(set) var keyLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16.0, weight: .regular)
-        label.textColor = .white
+        label.font = UIFont(name: "AvenirNext-Regular", size: 14.0)!
+        label.textColor = .gray
         label.textAlignment = .left
         label.numberOfLines = 1
         return label
@@ -25,7 +25,7 @@ class KeyValueCell: UITableViewCell
     
     private(set) var valueLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 17.0, weight: .semibold)
+        label.font = UIFont(name: "AvenirNext-Medium", size: 16)!
         label.textColor = .white
         label.textAlignment = .right
         label.numberOfLines = 1
@@ -40,7 +40,7 @@ class KeyValueCell: UITableViewCell
     
     var key: String = "" {
         didSet {
-            self.keyLabel.text = self.key
+            self.keyLabel.text = self.key.uppercased()
         }
     }
     
@@ -78,7 +78,7 @@ class KeyValueCell: UITableViewCell
                 
         self.keyLabel.autoPinEdge(toSuperviewMargin: .left)
         self.keyLabel.autoPinEdge(toSuperviewEdge: .top, withInset: 14.0)
-        self.keyLabel.autoPinEdge(toSuperviewEdge: .bottom, withInset: 18.0)
+        self.keyLabel.autoPinEdge(toSuperviewEdge: .bottom, withInset: 16.0)
         self.keyLabel.rightAnchor.constraint(lessThanOrEqualTo: self.valueLabel.leftAnchor, constant: -16.0).isActive = true
         
         self.valueLabel.autoPinEdge(toSuperviewEdge: .top, withInset: 14.0)

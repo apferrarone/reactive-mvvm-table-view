@@ -35,10 +35,14 @@ PODS:
   - nanopb/decode (0.3.9011)
   - nanopb/encode (0.3.9011)
   - PureLayout (3.1.5)
+  - SDWebImage (5.7.0):
+    - SDWebImage/Core (= 5.7.0)
+  - SDWebImage/Core (5.7.0)
 
 DEPENDENCIES:
   - Firebase/Database
   - PureLayout
+  - SDWebImage (~> 5.0)
 
 SPEC REPOS:
   trunk:
@@ -54,6 +58,7 @@ SPEC REPOS:
     - leveldb-library
     - nanopb
     - PureLayout
+    - SDWebImage
 
 SPEC CHECKSUMS:
   Firebase: f378c80340dd41c0ad0914af740c021eb282a04b
@@ -68,7 +73,8 @@ SPEC CHECKSUMS:
   leveldb-library: 55d93ee664b4007aac644a782d11da33fba316f7
   nanopb: 18003b5e52dab79db540fe93fe9579f399bd1ccd
   PureLayout: 9b4ad47b2f0388c84ff534af23d96e720c1b875a
+  SDWebImage: a99471f452bdfa0ca52ddf5b1adf2b61cab1d1eb
 
-PODFILE CHECKSUM: 49455c5fa696a328680c2d55a2ba35b2ad0bfbf7
+PODFILE CHECKSUM: ff20de9c0878cf9f9dc5705b0ca46312ecdc119f
 
 COCOAPODS: 1.9.0

@@ -14,19 +14,18 @@ protocol ReloadableSection
 {
     var sectionId: String { get } // unique id for items
     var sectionHeader: ReloadableSectionHeader? { get }
+    var sectionFooter: ReloadableSectionFooter? { get }
     var rows: [ReloadableRow] { get } // [items] for this section usually
-//    func isEqualTo(_ other: ReloadableSection) -> Bool
 }
 
 extension ReloadableSection
 {
-//    func isEqualTo(_ other: ReloadableSection) -> Bool
-//    {
-//        return self.sectionId == other.sectionId && self.rows == other.rows
-//    }
-    
     var sectionHeader: ReloadableSectionHeader? {
         return nil // default no header
+    }
+    
+    var sectionFooter: ReloadableSectionFooter? {
+        return nil // default no footer
     }
 }
 
@@ -46,13 +45,23 @@ struct ReloadableSectionData
     }
 }
 
-// MARK: - Reloadable Section Header
+// MARK: - Reloadable Section Header & Footer
 
 struct ReloadableSectionHeader: Equatable
 {
     var value: CustomStringConvertible
     
     static func ==(lhs: ReloadableSectionHeader, rhs: ReloadableSectionHeader) -> Bool
+    {
+        return lhs.value.description == rhs.value.description
+    }
+}
+
+struct ReloadableSectionFooter: Equatable
+{
+    var value: CustomStringConvertible
+    
+    static func ==(lhs: ReloadableSectionFooter, rhs: ReloadableSectionFooter) -> Bool
     {
         return lhs.value.description == rhs.value.description
     }
@@ -99,6 +108,7 @@ struct SectionChanges
     // but clients of TableViewDiffCalculator may want to implement something custom so
     // I'm calling this sectionHeadersToReload instead of just sectionsToReload
     var sectionHeaderReloads = [Int]()
+    var sectionFooterReloads = [Int]()
 
     var sectionsToInsert: IndexSet {
         return IndexSet(self.inserts)
@@ -110,6 +120,10 @@ struct SectionChanges
     
     var sectionHeadersToReload: IndexSet {
         return IndexSet(self.sectionHeaderReloads)
+    }
+    
+    var sectionFootersToReload: IndexSet {
+        return IndexSet(self.sectionFooterReloads)
     }
 }
 
@@ -150,10 +164,13 @@ class TableViewDiffCalculator
                     rowChanges.rowsToDelete.append(contentsOf: calculatedRowChanges.rowsToDelete)
                     rowChanges.rowsToInsert.append(contentsOf: calculatedRowChanges.rowsToInsert)
                 }
-                // might need to put this above and bail since reloading the whole section would take care of the rows,
-                // but let's see if we can reload the section and the rows at the same time
+                // check section header
                 if oldSection.sectionHeader != newSection.sectionHeader {
                     sectionChanges.sectionHeaderReloads.append(newSectionIndex)
+                }
+                // check section footer
+                if oldSection.sectionFooter != newSection.sectionFooter {
+                    sectionChanges.sectionFooterReloads.append(newSectionIndex)
                 }
             }
             // if section only exists in old -> it's been deleted
@@ -202,24 +219,5 @@ class TableViewDiffCalculator
         }
     
         return rowChanges
-    }
-}
-
-extension Array where Element: Hashable
-{
-    // Remove duplicates from the array, preserving the items order
-    func filterDuplicates() -> Array<Element>
-    {
-        var set = Set<Element>()
-        var filteredArray = Array<Element>()
-
-        for item in self {
-            // if it was successfully inserted into the set, it did not already exist and is unique
-            if set.insert(item).inserted {
-                filteredArray.append(item)
-            }
-        }
-
-        return filteredArray
     }
 }

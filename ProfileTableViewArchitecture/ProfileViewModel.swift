@@ -14,7 +14,10 @@ final class ProfileViewModel: NSObject
 {
     private(set) var items = [ProfileViewModelItem]()
         
-    var title = "Profile" // could be BOX
+    var profileName: Box<String?> = Box(nil)
+    var profileListeners: Box<String?> = Box(nil)
+    var profileImageUrl: Box<String?> = Box(nil)
+    
     var applyChanges: ((SectionChanges) -> Void)?
 
     func observeData()
@@ -28,20 +31,20 @@ final class ProfileViewModel: NSObject
     {
         var newItems: [ProfileViewModelItem] = []
         
-        if let id = profile.id, let name = profile.name {
-            newItems.append(ProfileViewModelNameEmailItem(id: id, name: name, email: profile.email))
-        }
+        self.profileName.value = profile.name
+        self.profileListeners.value = profile.listeners
+        self.profileImageUrl.value = profile.imageUrl
         
-        if let about = profile.about {
-            newItems.append(ProfileViewModelAboutItem(aboutTitle: about.title, aboutContent: about.content))
+        if let songs = profile.songs {
+            newItems.append(ProfileViewModelSongsItem(songs: songs))
         }
         
         if let details = profile.details {
             newItems.append(ProfileViewModelDetailsItem(details: details))
         }
         
-        if let friends = profile.friends {
-            newItems.append(ProfileViewModelFriendsItem(friends: friends))
+        if let about = profile.about {
+            newItems.append(ProfileViewModelAboutItem(aboutTitle: about.title, aboutContent: about.content))
         }
         
         // get the diff, update the data source, and finally update the UI
@@ -69,26 +72,7 @@ extension ProfileViewModelItem
 // String as rawValue to use as unique sectionId for TableViewDiffCalculator
 enum ProfileViewModelItemType: String
 {
-    case nameEmail, about, details, friends
-}
-
-struct ProfileViewModelNameEmailItem: ProfileViewModelItem
-{
-    let id: String
-    let name: String
-    let email: String?
-    
-    var type: ProfileViewModelItemType {
-        return .nameEmail
-    }
-    
-    var sectionTitle: String? {
-        return nil
-    }
-    
-    var rows: [ReloadableRow] {
-        return [ReloadableRow(id: self.id, value: "\(self.name), \(self.email ?? "")")]
-    }
+    case about, details, songs
 }
 
 struct ProfileViewModelAboutItem: ProfileViewModelItem
@@ -101,7 +85,7 @@ struct ProfileViewModelAboutItem: ProfileViewModelItem
     }
     
     var sectionTitle: String? {
-        return self.aboutTitle.uppercased()
+        return self.aboutTitle.capitalized
     }
     
     var sectionHeader: ReloadableSectionHeader? {
@@ -111,7 +95,6 @@ struct ProfileViewModelAboutItem: ProfileViewModelItem
     var rows: [ReloadableRow] {
         return [ReloadableRow(id: self.sectionId, value: self.aboutContent)]
     }
-    
 }
 
 struct ProfileViewModelDetailsItem: ProfileViewModelItem
@@ -123,7 +106,7 @@ struct ProfileViewModelDetailsItem: ProfileViewModelItem
     }
     
     var sectionTitle: String? {
-        return "DETAILS"
+        return "Details"
     }
     
     var rows: [ReloadableRow] {
@@ -131,20 +114,20 @@ struct ProfileViewModelDetailsItem: ProfileViewModelItem
     }
 }
 
-struct ProfileViewModelFriendsItem: ProfileViewModelItem
+struct ProfileViewModelSongsItem: ProfileViewModelItem
 {
-    var friends: [Friend]
+    var songs: [Song]
     
     var type: ProfileViewModelItemType {
-        return .friends
+        return .songs
     }
     
     var sectionTitle: String? {
-        return "FRIENDS"
+        return "Songs"
     }
     
     var rows: [ReloadableRow] {
-        return self.friends.map { ReloadableRow(id: $0.id, value: $0) }
+        return self.songs.map { ReloadableRow(id: $0.id, value: $0) }
     }
 }
 

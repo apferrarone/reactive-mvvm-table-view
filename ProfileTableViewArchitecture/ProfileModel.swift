@@ -12,10 +12,11 @@ struct Profile: Codable
 {
     let id: String?
     let name: String?
-    let email: String?
+    let listeners: String?
+    let imageUrl: String?
     let about: AboutContent?
     let details: [Attribute]?
-    let friends: [Friend]?
+    let songs: [Song]?
 }
 
 struct AboutContent: Codable
@@ -37,17 +38,17 @@ extension Attribute: CustomStringConvertible
     }
 }
 
-struct Friend: Codable
+struct Song: Codable
 {
     let id: String
-    let name: String
-    let email: String
+    let title: String
+    let subtitle: String
     let imageUrl: String
 }
 
-extension Friend: CustomStringConvertible
+extension Song: CustomStringConvertible
 {
     var description: String {
-        return "\(self.id), \(self.name), \(self.email), \(self.imageUrl)"
+        return "\(self.id), \(self.title), \(self.subtitle), \(self.imageUrl)"
     }
 }

@@ -8,23 +8,39 @@
 
 import UIKit
 import PureLayout
+import SDWebImage
+
+private let HEIGHT_HEADER: CGFloat = 360.0
 
 class ProfileViewController: UIViewController
 {
-     private lazy var tableView: UITableView = {
+    private lazy var headerImageView: HeaderView = {
+        let view = HeaderView()
+        view.backgroundColor = .gray
+        view.contentMode = .scaleAspectFill
+        return view
+    }()
+            
+    private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
-        tableView.tableHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.bounds.width, height: 0.01)) // hack for grouped top inset
-        tableView.register(NameEmailCell.self, forCellReuseIdentifier: NameEmailCell.identifier)
+        tableView.delegate = self
+        tableView.dataSource = self
         tableView.register(AboutCell.self, forCellReuseIdentifier: AboutCell.identifier)
         tableView.register(KeyValueCell.self, forCellReuseIdentifier: KeyValueCell.identifier)
-        tableView.register(FriendCell.self, forCellReuseIdentifier: FriendCell.identifier)
-        tableView.dataSource = self
+        tableView.register(SongCell.self, forCellReuseIdentifier: SongCell.identifier)
+        tableView.register(SectionHeaderView.self, forHeaderFooterViewReuseIdentifier: SectionHeaderView.identifier)
+        tableView.sectionHeaderHeight = 64.0
         tableView.sectionFooterHeight = 24.0
+        tableView.contentInset.bottom = 100.0
+        tableView.estimatedRowHeight = 77.0
+        tableView.rowHeight = UITableView.automaticDimension
         tableView.separatorStyle = .none
         tableView.showsVerticalScrollIndicator = false
         tableView.backgroundColor = .black
         return tableView
     }()
+    
+    private var isShowingNavBar = false
     
     let viewModel: ProfileViewModel
 
@@ -38,9 +54,9 @@ class ProfileViewController: UIViewController
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func viewDidLoad()
+    override func viewWillAppear(_ animated: Bool)
     {
-        super.viewDidLoad()
+        super.viewWillAppear(animated)
         self.setupViews()
         self.bindToViewModel()
         self.viewModel.observeData()
@@ -50,16 +66,45 @@ class ProfileViewController: UIViewController
     
     private func bindToViewModel()
     {
-        self.title = self.viewModel.title
+        self.viewModel.profileName.bind { [unowned self] name in
+            UIView.transition(with: self.headerImageView.nameLabel, duration: 0.5, options: .transitionCrossDissolve, animations: {
+                self.headerImageView.nameLabel.text = name
+            }, completion: nil)
+            self.title = name
+        }
+        
+        self.viewModel.profileListeners.bind { [hv = self.headerImageView] listeners in
+            UIView.transition(with: self.headerImageView.subtitleLabel, duration: 0.5, options: .transitionCrossDissolve, animations: {
+                hv.subtitleLabel.text = listeners
+            }, completion: nil)
+        }
+        
+        self.viewModel.profileImageUrl.bind { [hv = self.headerImageView] imageUrl in
+            if let path = imageUrl, let url = URL(string: path) {
+                UIView.transition(with: self.headerImageView, duration: 0.5, options: .transitionCrossDissolve, animations: {
+                    hv.sd_setImage(with: url)
+                }, completion: nil)
+            }
+        }
         
         self.viewModel.applyChanges = { [tv = self.tableView] in
             tv.beginUpdates()
             tv.deleteSections($0.sectionsToDelete, with: .fade)
             tv.insertSections($0.sectionsToInsert, with: .fade)
-            tv.reloadSections($0.sectionHeadersToReload, with: .fade)
             tv.deleteRows(at: $0.rowChanges.rowsToDelete, with: .fade)
             tv.insertRows(at: $0.rowChanges.rowsToInsert, with: .fade)
             tv.reloadRows(at: $0.rowChanges.rowsToReload, with: .fade)
+            
+            // reload the section headers
+            $0.sectionHeaderReloads.forEach { section in
+                if let header = tv.headerView(forSection: section) as? SectionHeaderView {
+                    UIView.transition(with: header.titleLabel, duration: 0.5, options: .transitionCrossDissolve, animations: {
+                        let item = self.viewModel.items[section]
+                        header.titleLabel.text = item.sectionTitle
+                    }, completion: nil)
+                }
+            }
+            
             tv.endUpdates()
         }
     }
@@ -69,6 +114,23 @@ class ProfileViewController: UIViewController
         self.view.backgroundColor = .black
         self.view.addSubview(self.tableView)
         self.tableView.autoPinEdgesToSuperviewEdges()
+        self.tableView.addSubview(self.headerImageView)
+        self.tableView.contentInset.top = HEIGHT_HEADER
+        self.tableView.contentOffset = CGPoint(x: 0, y: -HEIGHT_HEADER)
+        self.updateHeader()
+    }
+    
+    private func updateHeader()
+    {
+        self.headerImageView.translatesAutoresizingMaskIntoConstraints = true
+                
+        var headerRect = CGRect(x: 0, y: -HEIGHT_HEADER, width: self.tableView.bounds.width, height: HEIGHT_HEADER)
+        if self.tableView.contentOffset.y < -HEIGHT_HEADER {
+            headerRect.origin.y = self.tableView.contentOffset.y
+            headerRect.size.height = -self.tableView.contentOffset.y
+        }
+        
+        self.headerImageView.frame = headerRect
     }
 }
 
@@ -91,14 +153,6 @@ extension ProfileViewController: UITableViewDataSource
         let item = self.viewModel.items[indexPath.section]
         
         switch item.type {
-        case .nameEmail:
-            if let nameEmailItem = item as? ProfileViewModelNameEmailItem,
-                let cell = tableView.dequeueReusableCell(withIdentifier: NameEmailCell.identifier, for: indexPath) as? NameEmailCell {
-                cell.name = nameEmailItem.name
-                cell.email = nameEmailItem.email
-                return cell
-            }
-            
         case .about:
             if let aboutItem = item as? ProfileViewModelAboutItem,
                 let cell = tableView.dequeueReusableCell(withIdentifier: AboutCell.identifier, for: indexPath) as? AboutCell {
@@ -115,23 +169,45 @@ extension ProfileViewController: UITableViewDataSource
                 return cell
             }
             
-        case .friends:
-            if let friendsItem = item as? ProfileViewModelFriendsItem,
-                let cell = tableView.dequeueReusableCell(withIdentifier: FriendCell.identifier, for: indexPath) as? FriendCell {
-                let friend = friendsItem.friends[indexPath.row]
-                cell.name = friend.name
-                cell.email = friend.email
-                cell.imageUrl = URL(string: friend.imageUrl)
+        case .songs:
+            if let songsItem = item as? ProfileViewModelSongsItem,
+                let cell = tableView.dequeueReusableCell(withIdentifier: SongCell.identifier, for: indexPath) as? SongCell {
+                let song = songsItem.songs[indexPath.row]
+                cell.song = song
                 return cell
             }
         }
         
         return UITableViewCell()
     }
-    
-    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String?
+}
+
+// MARK: - UITableViewDelegate
+extension ProfileViewController: UITableViewDelegate
+{
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView?
     {
         let item = self.viewModel.items[section]
-        return item.sectionTitle
+        
+        if let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: SectionHeaderView.identifier) as? SectionHeaderView {
+            headerView.titleLabel.text = item.sectionTitle
+            return headerView
+        }
+
+        return nil
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView)
+    {
+        self.updateHeader()
+        
+        if self.tableView.contentOffset.y <= -160 && !self.isShowingNavBar {
+            self.navigationController?.setNavigationBarHidden(true, animated: true)
+            self.isShowingNavBar = true
+        }
+        else if self.tableView.contentOffset.y > -160 && self.isShowingNavBar {
+            self.navigationController?.setNavigationBarHidden(false, animated: true)
+            self.isShowingNavBar = false
+        }
     }
 }
