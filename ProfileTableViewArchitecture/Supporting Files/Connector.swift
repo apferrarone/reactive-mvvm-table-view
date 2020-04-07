@@ -32,6 +32,7 @@ class Connector
                     do {
                         let data = try JSONSerialization.data(withJSONObject: profileData, options: .prettyPrinted)
                         let profile = try JSONDecoder().decode(Profile.self, from: data)
+                        
                         DispatchQueue.main.async {
                             onSuccess(profile)
                         }

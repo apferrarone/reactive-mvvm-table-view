@@ -11,7 +11,7 @@ import PureLayout
 
 class ProfileViewController: UIViewController
 {
-     lazy var tableView: UITableView = {
+     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.tableHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.bounds.width, height: 0.01)) // hack for grouped top inset
         tableView.register(NameEmailCell.self, forCellReuseIdentifier: NameEmailCell.identifier)
@@ -43,9 +43,12 @@ class ProfileViewController: UIViewController
         super.viewDidLoad()
         self.setupViews()
         self.bindToViewModel()
+        self.viewModel.observeData()
     }
     
-    func bindToViewModel()
+    // MARK: - Utilities
+    
+    private func bindToViewModel()
     {
         self.title = self.viewModel.title
         
@@ -53,16 +56,15 @@ class ProfileViewController: UIViewController
             tv.beginUpdates()
             tv.deleteSections($0.sectionsToDelete, with: .fade)
             tv.insertSections($0.sectionsToInsert, with: .fade)
+            tv.reloadSections($0.sectionHeadersToReload, with: .fade)
             tv.deleteRows(at: $0.rowChanges.rowsToDelete, with: .fade)
             tv.insertRows(at: $0.rowChanges.rowsToInsert, with: .fade)
             tv.reloadRows(at: $0.rowChanges.rowsToReload, with: .fade)
             tv.endUpdates()
         }
-        
-        self.viewModel.observeData()
     }
     
-    func setupViews()
+    private func setupViews()
     {
         self.view.backgroundColor = .black
         self.view.addSubview(self.tableView)
@@ -70,6 +72,7 @@ class ProfileViewController: UIViewController
     }
 }
 
+// MARK: - UITableViewDataSource
 extension ProfileViewController: UITableViewDataSource
 {
     func numberOfSections(in tableView: UITableView) -> Int
@@ -80,7 +83,7 @@ extension ProfileViewController: UITableViewDataSource
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int
     {
         let item = self.viewModel.items[section]
-        return item.rowItems.count
+        return item.rows.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell

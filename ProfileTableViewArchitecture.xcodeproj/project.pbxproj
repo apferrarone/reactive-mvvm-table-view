@@ -19,7 +19,6 @@
 		68CE9F0D2430B12F009F1A90 /* ProfileModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68CE9F0C2430B12F009F1A90 /* ProfileModel.swift */; };
 		68CE9F112430B765009F1A90 /* AboutCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68CE9F102430B765009F1A90 /* AboutCell.swift */; };
 		68CE9F132430BB90009F1A90 /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68CE9F122430BB90009F1A90 /* ProfileViewModel.swift */; };
-		68CE9F152430EE4B009F1A90 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68CE9F142430EE4B009F1A90 /* Extensions.swift */; };
 		68CE9F19243179C9009F1A90 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 68CE9F18243179C9009F1A90 /* GoogleService-Info.plist */; };
 		68CE9F1D243187EF009F1A90 /* TableViewDiffCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68CE9F1C243187EF009F1A90 /* TableViewDiffCalculator.swift */; };
 		68CE9F1E243199C3009F1A90 /* Connector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68CE9F1A24317BEE009F1A90 /* Connector.swift */; };
@@ -44,7 +43,6 @@
 		68CE9F0C2430B12F009F1A90 /* ProfileModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileModel.swift; sourceTree = "<group>"; };
 		68CE9F102430B765009F1A90 /* AboutCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutCell.swift; sourceTree = "<group>"; };
 		68CE9F122430BB90009F1A90 /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
-		68CE9F142430EE4B009F1A90 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		68CE9F18243179C9009F1A90 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		68CE9F1A24317BEE009F1A90 /* Connector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Connector.swift; sourceTree = "<group>"; };
 		68CE9F1C243187EF009F1A90 /* TableViewDiffCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewDiffCalculator.swift; sourceTree = "<group>"; };
@@ -100,7 +98,6 @@
 				68CE9EEC24308B10009F1A90 /* AppDelegate.swift */,
 				68CE9EEE24308B10009F1A90 /* SceneDelegate.swift */,
 				68CE9F1A24317BEE009F1A90 /* Connector.swift */,
-				68CE9F142430EE4B009F1A90 /* Extensions.swift */,
 				68CE9EF524308B16009F1A90 /* Assets.xcassets */,
 				68CE9EF724308B16009F1A90 /* LaunchScreen.storyboard */,
 				68CE9EFA24308B16009F1A90 /* Info.plist */,
@@ -263,7 +260,6 @@
 				68CE9EEF24308B10009F1A90 /* SceneDelegate.swift in Sources */,
 				68CE9F1D243187EF009F1A90 /* TableViewDiffCalculator.swift in Sources */,
 				68CE9F112430B765009F1A90 /* AboutCell.swift in Sources */,
-				68CE9F152430EE4B009F1A90 /* Extensions.swift in Sources */,
 				68CE9F0D2430B12F009F1A90 /* ProfileModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
