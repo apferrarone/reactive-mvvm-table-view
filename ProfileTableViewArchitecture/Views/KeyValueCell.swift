@@ -77,12 +77,11 @@ class KeyValueCell: UITableViewCell
         self.contentView.addSubview(self.separator)
                 
         self.keyLabel.autoPinEdge(toSuperviewMargin: .left)
-        self.keyLabel.autoPinEdge(toSuperviewEdge: .top, withInset: 14.0)
         self.keyLabel.autoPinEdge(toSuperviewEdge: .bottom, withInset: 16.0)
         self.keyLabel.rightAnchor.constraint(lessThanOrEqualTo: self.valueLabel.leftAnchor, constant: -16.0).isActive = true
         
-        self.valueLabel.autoPinEdge(toSuperviewEdge: .top, withInset: 14.0)
-        self.valueLabel.autoPinEdge(toSuperviewEdge: .bottom, withInset: 18.0)
+        self.valueLabel.autoPinEdge(toSuperviewEdge: .top, withInset: 12.0)
+        self.valueLabel.autoPinEdge(toSuperviewEdge: .bottom, withInset: 16.0)
         self.valueLabel.autoPinEdge(toSuperviewMargin: .right)
         
         self.separator.autoSetDimension(.height, toSize: 1.0)

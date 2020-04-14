@@ -19,7 +19,7 @@ class SectionHeaderView: UITableViewHeaderFooterView
         label.font = UIFont(name: "AvenirNext-Bold", size: 22.0)!
         label.textColor = .white
         return label
-     }()
+    }()
     
     override init(reuseIdentifier: String?)
     {

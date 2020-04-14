@@ -75,7 +75,7 @@ class SongCell: UITableViewCell
                 
         self.thumbnailImageView.autoPinEdge(toSuperviewMargin: .left)
         self.thumbnailImageView.autoAlignAxis(toSuperviewAxis: .horizontal)
-        self.thumbnailImageView.autoSetDimensions(to: CGSize(width: 48.0, height: 48.0))
+        self.thumbnailImageView.autoSetDimensions(to: CGSize(width: 44.0, height: 44.0))
         self.thumbnailImageView.layer.cornerRadius = 10.0
         self.thumbnailImageView.clipsToBounds = true
         

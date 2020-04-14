@@ -87,7 +87,6 @@
 		68CE9EEB24308B10009F1A90 /* ProfileTableViewArchitecture */ = {
 			isa = PBXGroup;
 			children = (
-				68CE9F0024308C21009F1A90 /* Coordinator.swift */,
 				68CE9F0224308D0E009F1A90 /* ProfileViewController.swift */,
 				68CE9F122430BB90009F1A90 /* ProfileViewModel.swift */,
 				68CE9F0C2430B12F009F1A90 /* ProfileModel.swift */,
@@ -103,6 +102,7 @@
 			children = (
 				68CE9EEC24308B10009F1A90 /* AppDelegate.swift */,
 				68CE9EEE24308B10009F1A90 /* SceneDelegate.swift */,
+				68CE9F0024308C21009F1A90 /* Coordinator.swift */,
 				68CE9F1A24317BEE009F1A90 /* Connector.swift */,
 				687F9BAD243C3E71005A1C12 /* Box.swift */,
 				68C659E1243C7ACC00B3FB53 /* Extensions.swift */,

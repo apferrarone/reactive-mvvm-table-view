@@ -32,11 +32,11 @@ class HeaderView: UIImageView
         let image = UIImage(named: "play-button")
         let imageView = UIImageView(image: image)
         imageView.clipsToBounds = true
-        imageView.contentMode = .scaleAspectFill
+        imageView.contentMode = .scaleAspectFit
         return imageView
     }()
     
-    var bottomGradient = CAGradientLayer()
+    private var bottomGradient = CAGradientLayer()
     
     override init(frame: CGRect)
     {
