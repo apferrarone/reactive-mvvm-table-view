@@ -80,13 +80,13 @@ class SongCell: UITableViewCell
         self.thumbnailImageView.clipsToBounds = true
         
         self.titleLabel.autoPinEdge(.left, to: .right, of: self.thumbnailImageView, withOffset: 12.0)
-        self.titleLabel.autoPinEdge(toSuperviewMargin: .top, withInset: 4.0)
+        self.titleLabel.autoPinEdge(toSuperviewMargin: .top)
         self.titleLabel.autoPinEdge(toSuperviewMargin: .right)
         
         self.subtitleLabel.autoPinEdge(.top, to: .bottom, of: self.titleLabel, withOffset: 4.0)
         self.subtitleLabel.autoPinEdge(.left, to: .left, of: self.titleLabel)
         self.subtitleLabel.autoPinEdge(.left, to: .right, of: self.thumbnailImageView, withOffset: 12.0)
         self.subtitleLabel.autoPinEdge(toSuperviewMargin: .right)
-        self.subtitleLabel.autoPinEdge(toSuperviewMargin: .bottom, withInset: 4.0)
+        self.subtitleLabel.autoPinEdge(toSuperviewMargin: .bottom)
     }
 }

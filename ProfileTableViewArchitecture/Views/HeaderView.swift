@@ -86,6 +86,9 @@ class HeaderView: UIImageView
             self.playButtonView.autoPinEdge(toSuperviewMargin: .bottom)
             self.playButtonView.autoSetDimensions(to: CGSize(width: 44.0, height: 44.0))
         }
+        
+        self.nameLabel.setContentHuggingPriority(.required, for: .vertical)
+        self.subtitleLabel.setContentHuggingPriority(.required, for: .vertical)
     }
     
     private func updateGradient()

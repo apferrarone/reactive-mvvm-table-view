@@ -123,7 +123,7 @@ struct ProfileViewModelSongsItem: ProfileViewModelItem
     }
     
     var sectionTitle: String? {
-        return "Songs"
+        return "Top Songs"
     }
     
     var rows: [ReloadableRow] {

@@ -40,6 +40,10 @@ class ProfileViewController: UIViewController
         return tableView
     }()
     
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
+    
     private var isShowingNavBar = false
     
     let viewModel: ProfileViewModel
