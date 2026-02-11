@@ -19,7 +19,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         // setup root navigation controller
-        self.topNavigationController = UINavigationController()
+        self.topNavigationController = StatusBarNavigationController()
         self.topNavigationController.navigationBar.barStyle = .black
         self.topNavigationController.navigationBar.prefersLargeTitles = false
         
@@ -34,3 +34,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate
     }
 }
 
+// Necessary to honor .lightContent status bar at all times
+final class StatusBarNavigationController: UINavigationController {
+    override var childForStatusBarStyle: UIViewController? { topViewController }
+    override var childForStatusBarHidden: UIViewController? { topViewController }
+}

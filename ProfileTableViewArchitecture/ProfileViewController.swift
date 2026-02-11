@@ -124,6 +124,7 @@ class ProfileViewController: UIViewController
         self.updateHeader()
     }
     
+    // called on scrollViewDidScroll
     private func updateHeader()
     {
         self.headerImageView.translatesAutoresizingMaskIntoConstraints = true

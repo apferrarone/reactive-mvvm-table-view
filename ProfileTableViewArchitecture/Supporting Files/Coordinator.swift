@@ -8,7 +8,7 @@
 
 import UIKit
 
-protocol AppCoordinator: class
+protocol AppCoordinator: AnyObject
 {
     var rootViewController: UINavigationController { get }
     func start()

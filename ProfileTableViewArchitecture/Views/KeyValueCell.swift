@@ -34,7 +34,7 @@ class KeyValueCell: UITableViewCell
     
     private(set) var separator: UIView = {
         let view = UIView()
-        view.backgroundColor = .separator
+        view.backgroundColor = .gray.withAlphaComponent(0.3)
         return view
     }()
     
