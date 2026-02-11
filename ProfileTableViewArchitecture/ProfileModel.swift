@@ -14,6 +14,7 @@ struct Profile: Codable
     let name: String?
     let listeners: String?
     let imageUrl: String?
+    
     let about: AboutContent?
     let details: [Attribute]?
     let songs: [Song]?
