@@ -62,6 +62,17 @@ class SongCell: UITableViewCell
         self.initialize()
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        // cancel in-flight image request in case it is for "old" row that we are now reusing
+        // clear everything else so nothing is stale in the UI
+        self.thumbnailImageView.sd_cancelCurrentImageLoad()
+        self.thumbnailImageView.image = nil
+        self.titleLabel.text = nil
+        self.subtitleLabel.text = nil
+    }
+    
     // MARK: - Utilities
     
     func initialize()

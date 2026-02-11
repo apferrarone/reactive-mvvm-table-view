@@ -84,7 +84,7 @@ class HeaderView: UIImageView
             
             self.playButtonView.autoPinEdge(toSuperviewEdge: .right, withInset: 18.0)
             self.playButtonView.autoPinEdge(toSuperviewMargin: .bottom)
-            self.playButtonView.autoSetDimensions(to: CGSize(width: 44.0, height: 44.0))
+            self.playButtonView.autoSetDimensions(to: CGSize(width: 56.0, height: 56.0))
         }
         
         self.nameLabel.setContentHuggingPriority(.required, for: .vertical)

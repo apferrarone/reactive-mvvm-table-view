@@ -8,12 +8,14 @@
 
 import UIKit
 
+@MainActor
 protocol AppCoordinator: AnyObject
 {
     var rootViewController: UINavigationController { get }
     func start()
 }
 
+@MainActor
 final class Coordinator: NSObject, AppCoordinator
 {
     var rootViewController: UINavigationController

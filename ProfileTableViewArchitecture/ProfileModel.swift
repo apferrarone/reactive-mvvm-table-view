@@ -26,7 +26,7 @@ struct AboutContent: Codable
     let content: String
 }
 
-struct Attribute: Codable
+struct Attribute: Codable, Hashable
 {
     let key: String
     let value: String
@@ -39,7 +39,7 @@ extension Attribute: CustomStringConvertible
     }
 }
 
-struct Song: Codable
+struct Song: Codable, Hashable
 {
     let id: String
     let title: String

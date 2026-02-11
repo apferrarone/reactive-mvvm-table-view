@@ -36,8 +36,13 @@ class SectionHeaderView: UITableViewHeaderFooterView
     func initialize()
     {
         self.contentView.addSubview(self.titleLabel)
-        self.titleLabel.autoPinEdge(toSuperviewMargin: .left)
-        self.titleLabel.autoPinEdge(toSuperviewEdge: .bottom, withInset: 8.0)
-        self.titleLabel.autoPinEdge(toSuperviewMargin: .right)
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -8),
+            titleLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
+            titleLabel.topAnchor.constraint(greaterThanOrEqualTo: contentView.topAnchor, constant: 8)
+        ])
     }
 }
