@@ -43,11 +43,11 @@ class ProfileViewController: UIViewController
         return .lightContent
     }
     
-    private var isShowingNavBar = false
-    
     let viewModel: ProfileViewModel
     private var dataSource: UITableViewDiffableDataSource<ProfileSection, ProfileRow>!
     private var currentState: ProfileViewModel.State?
+    
+    private var isShowingNavBar = false
 
     init(viewModel: ProfileViewModel)
     {
@@ -62,20 +62,31 @@ class ProfileViewController: UIViewController
     override func viewWillAppear(_ animated: Bool)
     {
         super.viewWillAppear(animated)
-        setupViews()
-        setupDataSource()
-        bind()
-        viewModel.observeData()
+        
+        self.setupViews()
+        self.setupDataSource()
+        
+        // bind to view model and start listening for data/state changes
+        viewModel.onChange = { [weak self] state in
+            self?.render(state)
+        }
+        
+        self.viewModel.observeData()
     }
     
     // MARK: - Utilities
     
-    private func bind() {
-        viewModel.onChange = { [weak self] state in
-            self?.render(state)
-        }
+    private func setupViews()
+    {
+        self.view.backgroundColor = .black
+        self.view.addSubview(self.tableView)
+        self.tableView.autoPinEdgesToSuperviewEdges()
+        self.tableView.addSubview(self.headerImageView)
+        self.tableView.contentInset.top = HEIGHT_HEADER
+        self.tableView.contentOffset = CGPoint(x: 0, y: -HEIGHT_HEADER)
+        self.updateHeader()
     }
-
+    
     private func setupDataSource() {
         dataSource = UITableViewDiffableDataSource<ProfileSection, ProfileRow>(tableView: tableView) { tableView, indexPath, row in
             switch row {
@@ -100,22 +111,13 @@ class ProfileViewController: UIViewController
         self.tableView.dataSource = dataSource
     }
     
-    private func setupViews()
-    {
-        self.view.backgroundColor = .black
-        self.view.addSubview(self.tableView)
-        self.tableView.autoPinEdgesToSuperviewEdges()
-        self.tableView.addSubview(self.headerImageView)
-        self.tableView.contentInset.top = HEIGHT_HEADER
-        self.tableView.contentOffset = CGPoint(x: 0, y: -HEIGHT_HEADER)
-        self.updateHeader()
-    }
-    
     private func render(_ newState: ProfileViewModel.State) {
+        // capture currentState (now oldState) before updating it w/ new state
         let oldState = currentState
         currentState = newState
 
-        // animate header text changes
+        /* Header text changes */
+        
         if oldState?.name != newState.name {
             UIView.transition(with: headerImageView.nameLabel, duration: 0.35, options: .transitionCrossDissolve) {
                 self.headerImageView.nameLabel.text = newState.name
@@ -136,16 +138,21 @@ class ProfileViewController: UIViewController
                 self.headerImageView.sd_setImage(with: url)
             }
         }
+        
+        /* Table View Updates */
 
-        // snapshot
+        // create new state for tableview from view model state
         var snapshot = NSDiffableDataSourceSnapshot<ProfileSection, ProfileRow>()
         for (section, rows) in newState.sections {
             snapshot.appendSections([section])
             snapshot.appendItems(rows, toSection: section)
         }
         
-        UIView.transition(with: tableView, duration: 0.25, options: .transitionCrossDissolve) {
-            self.dataSource.apply(snapshot, animatingDifferences: false)
+        // animate table view changes
+        UIView.transition(with: tableView, duration: 0.35, options: .transitionCrossDissolve) {
+            self.dataSource.apply(snapshot, animatingDifferences: false) { [weak self] in // use fade animation instead ^
+                self?.reloadVisibleSectionHeaders()
+            }
         }
     }
     
@@ -190,6 +197,14 @@ class ProfileViewController: UIViewController
         
         self.headerImageView.frame = headerRect
     }
+    
+    private func headerTitle(for section: ProfileSection) -> String? {
+        switch section {
+        case .songs: return "Top Songs"
+        case .details: return "Details"
+        case .about: return currentState?.aboutTitle
+        }
+    }
 }
 
 // MARK: - UITableViewDelegate
@@ -203,14 +218,6 @@ extension ProfileViewController: UITableViewDelegate
 
         header.titleLabel.text = headerTitle(for: sectionID)
         return header
-    }
-
-    private func headerTitle(for section: ProfileSection) -> String? {
-        switch section {
-        case .songs: return "Top Songs"
-        case .details: return "Details"
-        case .about: return currentState?.aboutTitle
-        }
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView)

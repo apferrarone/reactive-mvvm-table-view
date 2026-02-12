@@ -22,7 +22,6 @@ enum ProfileRow: Hashable {
     case about(content: String)
 }
 
-@MainActor
 final class ProfileViewModel {
     struct State {
         var name: String?
@@ -33,7 +32,7 @@ final class ProfileViewModel {
     }
 
     private(set) var state = State() {
-        didSet { onChange?(state) }
+        didSet { self.onChange?(state) }
     }
 
     var onChange: ((State) -> Void)?
