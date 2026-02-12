@@ -17,7 +17,7 @@ class AboutCell: UITableViewCell
     private lazy var aboutLabel: UILabel = {
         let label = UILabel()
         label.textColor = .white
-        label.font = UIFont(name: "AvenirNext-Regular", size: 14.0)!
+        label.font = UIFont(name: "AvenirNext-Regular", size: 15.0)!
         label.numberOfLines = 0
         label.lineBreakMode = .byTruncatingTail
         return label

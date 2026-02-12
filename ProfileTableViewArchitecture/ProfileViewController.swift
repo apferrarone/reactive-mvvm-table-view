@@ -29,7 +29,7 @@ class ProfileViewController: UIViewController
         tableView.register(SongCell.self, forCellReuseIdentifier: SongCell.identifier)
         tableView.register(SectionHeaderView.self, forHeaderFooterViewReuseIdentifier: SectionHeaderView.identifier)
         tableView.sectionHeaderHeight = 64.0
-        tableView.sectionFooterHeight = 24.0
+        tableView.sectionFooterHeight = 12.0
         tableView.contentInset.bottom = 100.0
         tableView.estimatedRowHeight = 77.0
         tableView.rowHeight = UITableView.automaticDimension

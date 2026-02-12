@@ -16,7 +16,7 @@ class KeyValueCell: UITableViewCell
     
     private(set) var keyLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont(name: "AvenirNext-Regular", size: 14.0)!
+        label.font = UIFont(name: "AvenirNext-Regular", size: 15.0)!
         label.textColor = .gray
         label.textAlignment = .left
         label.numberOfLines = 1

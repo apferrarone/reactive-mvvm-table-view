@@ -25,7 +25,7 @@ class SongCell: UITableViewCell
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .white
-        label.font = UIFont(name: "AvenirNext-Medium", size: 17.0)!
+        label.font = UIFont(name: "AvenirNext-Medium", size: 16.0)!
         label.numberOfLines = 1
         label.lineBreakMode = .byTruncatingTail
         return label
@@ -34,7 +34,7 @@ class SongCell: UITableViewCell
     private lazy var subtitleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .lightGray
-        label.font = UIFont(name: "AvenirNext-Regular", size: 14.0)!
+        label.font = UIFont(name: "AvenirNext-Regular", size: 15.0)!
         label.numberOfLines = 1
         label.lineBreakMode = .byTruncatingTail
         return label
@@ -86,7 +86,7 @@ class SongCell: UITableViewCell
                 
         self.thumbnailImageView.autoPinEdge(toSuperviewMargin: .left)
         self.thumbnailImageView.autoAlignAxis(toSuperviewAxis: .horizontal)
-        self.thumbnailImageView.autoSetDimensions(to: CGSize(width: 44.0, height: 44.0))
+        self.thumbnailImageView.autoSetDimensions(to: CGSize(width: 56.0, height: 56.0))
         self.thumbnailImageView.layer.cornerRadius = 10.0
         self.thumbnailImageView.clipsToBounds = true
         
