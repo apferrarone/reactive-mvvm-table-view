@@ -122,7 +122,7 @@ class ProfileViewController: UIViewController
             UIView.transition(with: headerImageView.nameLabel, duration: 0.35, options: .transitionCrossDissolve) {
                 self.headerImageView.nameLabel.text = newState.name
             }
-            self.title = newState.name
+            self.title = newState.name // title for navbar
         }
 
         if oldState?.listeners != newState.listeners {
