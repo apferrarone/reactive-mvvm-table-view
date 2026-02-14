@@ -24,13 +24,12 @@ class ProfileViewController: UIViewController
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.delegate = self
-        tableView.dataSource = self
         tableView.register(AboutCell.self, forCellReuseIdentifier: AboutCell.identifier)
         tableView.register(KeyValueCell.self, forCellReuseIdentifier: KeyValueCell.identifier)
         tableView.register(SongCell.self, forCellReuseIdentifier: SongCell.identifier)
         tableView.register(SectionHeaderView.self, forHeaderFooterViewReuseIdentifier: SectionHeaderView.identifier)
         tableView.sectionHeaderHeight = 64.0
-        tableView.sectionFooterHeight = 24.0
+        tableView.sectionFooterHeight = 12.0
         tableView.contentInset.bottom = 100.0
         tableView.estimatedRowHeight = 77.0
         tableView.rowHeight = UITableView.automaticDimension
@@ -44,9 +43,11 @@ class ProfileViewController: UIViewController
         return .lightContent
     }
     
-    private var isShowingNavBar = false
-    
     let viewModel: ProfileViewModel
+    private var dataSource: UITableViewDiffableDataSource<ProfileSection, ProfileRow>!
+    private var currentState: ProfileViewModel.State?
+    
+    private var isShowingNavBar = false
 
     init(viewModel: ProfileViewModel)
     {
@@ -61,57 +62,19 @@ class ProfileViewController: UIViewController
     override func viewWillAppear(_ animated: Bool)
     {
         super.viewWillAppear(animated)
+        
         self.setupViews()
-        self.bindToViewModel()
+        self.setupDataSource()
+        
+        // bind to view model and start listening for data/state changes
+        viewModel.onChange = { [weak self] state in
+            self?.render(state)
+        }
+        
         self.viewModel.observeData()
     }
     
     // MARK: - Utilities
-    
-    private func bindToViewModel()
-    {
-        self.viewModel.profileName.bind { [unowned self] name in
-            UIView.transition(with: self.headerImageView.nameLabel, duration: 0.5, options: .transitionCrossDissolve, animations: {
-                self.headerImageView.nameLabel.text = name
-            }, completion: nil)
-            self.title = name
-        }
-        
-        self.viewModel.profileListeners.bind { [hv = self.headerImageView] listeners in
-            UIView.transition(with: self.headerImageView.subtitleLabel, duration: 0.5, options: .transitionCrossDissolve, animations: {
-                hv.subtitleLabel.text = listeners
-            }, completion: nil)
-        }
-        
-        self.viewModel.profileImageUrl.bind { [hv = self.headerImageView] imageUrl in
-            if let path = imageUrl, let url = URL(string: path) {
-                UIView.transition(with: self.headerImageView, duration: 0.5, options: .transitionCrossDissolve, animations: {
-                    hv.sd_setImage(with: url)
-                }, completion: nil)
-            }
-        }
-        
-        self.viewModel.applyChanges = { [tv = self.tableView] in
-            tv.beginUpdates()
-            tv.deleteSections($0.sectionsToDelete, with: .fade)
-            tv.insertSections($0.sectionsToInsert, with: .fade)
-            tv.deleteRows(at: $0.rowChanges.rowsToDelete, with: .fade)
-            tv.insertRows(at: $0.rowChanges.rowsToInsert, with: .fade)
-            tv.reloadRows(at: $0.rowChanges.rowsToReload, with: .fade)
-            
-            // reload the section headers
-            $0.sectionHeaderReloads.forEach { section in
-                if let header = tv.headerView(forSection: section) as? SectionHeaderView {
-                    UIView.transition(with: header.titleLabel, duration: 0.5, options: .transitionCrossDissolve, animations: {
-                        let item = self.viewModel.items[section]
-                        header.titleLabel.text = item.sectionTitle
-                    }, completion: nil)
-                }
-            }
-            
-            tv.endUpdates()
-        }
-    }
     
     private func setupViews()
     {
@@ -122,6 +85,103 @@ class ProfileViewController: UIViewController
         self.tableView.contentInset.top = HEIGHT_HEADER
         self.tableView.contentOffset = CGPoint(x: 0, y: -HEIGHT_HEADER)
         self.updateHeader()
+    }
+    
+    private func setupDataSource() {
+        dataSource = UITableViewDiffableDataSource<ProfileSection, ProfileRow>(tableView: tableView) { tableView, indexPath, row in
+            switch row {
+            case let .song(song):
+                let cell = tableView.dequeueReusableCell(withIdentifier: SongCell.identifier, for: indexPath) as! SongCell
+                cell.song = song
+                return cell
+
+            case let .detail(attr):
+                let cell = tableView.dequeueReusableCell(withIdentifier: KeyValueCell.identifier, for: indexPath) as! KeyValueCell
+                cell.key = attr.key
+                cell.value = attr.value
+                return cell
+
+            case let .about(content):
+                let cell = tableView.dequeueReusableCell(withIdentifier: AboutCell.identifier, for: indexPath) as! AboutCell
+                cell.aboutContent = content
+                return cell
+            }
+        }
+        
+        self.tableView.dataSource = dataSource
+    }
+    
+    private func render(_ newState: ProfileViewModel.State) {
+        // capture currentState (now oldState) before updating it w/ new state
+        let oldState = currentState
+        currentState = newState
+
+        /* Header text changes */
+        
+        if oldState?.name != newState.name {
+            UIView.transition(with: headerImageView.nameLabel, duration: 0.35, options: .transitionCrossDissolve) {
+                self.headerImageView.nameLabel.text = newState.name
+            }
+            self.title = newState.name // title for navbar
+        }
+
+        if oldState?.listeners != newState.listeners {
+            UIView.transition(with: headerImageView.subtitleLabel, duration: 0.35, options: .transitionCrossDissolve) {
+                self.headerImageView.subtitleLabel.text = newState.listeners
+            }
+        }
+
+        if oldState?.imageUrl != newState.imageUrl,
+           let path = newState.imageUrl,
+           let url = URL(string: path) {
+            UIView.transition(with: headerImageView, duration: 0.35, options: .transitionCrossDissolve) {
+                self.headerImageView.sd_setImage(with: url)
+            }
+        }
+        
+        /* Table View Updates */
+
+        // create new state for tableview from view model state
+        var snapshot = NSDiffableDataSourceSnapshot<ProfileSection, ProfileRow>()
+        for (section, rows) in newState.sections {
+            snapshot.appendSections([section])
+            snapshot.appendItems(rows, toSection: section)
+        }
+        
+        // animate table view changes
+        UIView.transition(with: tableView, duration: 0.35, options: .transitionCrossDissolve) {
+            self.dataSource.apply(snapshot, animatingDifferences: false) { [weak self] in // use fade animation instead ^
+                self?.reloadVisibleSectionHeaders()
+            }
+        }
+    }
+    
+    private func reloadVisibleSectionHeaders() {
+        guard let visibleIndexPaths = tableView.indexPathsForVisibleRows else { return }
+
+        // get unique visible sections
+        let visibleSections = Set(visibleIndexPaths.map { $0.section })
+
+        for sectionIndex in visibleSections {
+            guard
+                let header = tableView.headerView(forSection: sectionIndex) as? SectionHeaderView,
+                let sectionID = dataSource.sectionIdentifier(for: sectionIndex)
+            else { continue }
+
+            let newTitle = headerTitle(for: sectionID)
+
+            // Only animate if text actually changed
+            if header.titleLabel.text != newTitle {
+                UIView.transition(
+                    with: header.titleLabel,
+                    duration: 0.35,
+                    options: .transitionCrossDissolve,
+                    animations: {
+                        header.titleLabel.text = newTitle
+                    }
+                )
+            }
+        }
     }
     
     // called on scrollViewDidScroll
@@ -137,69 +197,27 @@ class ProfileViewController: UIViewController
         
         self.headerImageView.frame = headerRect
     }
-}
-
-// MARK: - UITableViewDataSource
-extension ProfileViewController: UITableViewDataSource
-{
-    func numberOfSections(in tableView: UITableView) -> Int
-    {
-        return self.viewModel.items.count
-    }
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int
-    {
-        let item = self.viewModel.items[section]
-        return item.rows.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
-    {
-        let item = self.viewModel.items[indexPath.section]
-        
-        switch item.type {
-        case .about:
-            if let aboutItem = item as? ProfileViewModelAboutItem,
-                let cell = tableView.dequeueReusableCell(withIdentifier: AboutCell.identifier, for: indexPath) as? AboutCell {
-                cell.aboutContent = aboutItem.aboutContent
-                return cell
-            }
-                
-        case .details:
-            if let detailsItem = item as? ProfileViewModelDetailsItem,
-                let cell = tableView.dequeueReusableCell(withIdentifier: KeyValueCell.identifier, for: indexPath) as? KeyValueCell {
-                let detail = detailsItem.details[indexPath.row]
-                cell.key = detail.key
-                cell.value = detail.value
-                return cell
-            }
-            
-        case .songs:
-            if let songsItem = item as? ProfileViewModelSongsItem,
-                let cell = tableView.dequeueReusableCell(withIdentifier: SongCell.identifier, for: indexPath) as? SongCell {
-                let song = songsItem.songs[indexPath.row]
-                cell.song = song
-                return cell
-            }
+    private func headerTitle(for section: ProfileSection) -> String? {
+        switch section {
+        case .songs: return "Top Songs"
+        case .details: return "Details"
+        case .about: return currentState?.aboutTitle
         }
-        
-        return UITableViewCell()
     }
 }
 
 // MARK: - UITableViewDelegate
 extension ProfileViewController: UITableViewDelegate
 {
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView?
-    {
-        let item = self.viewModel.items[section]
-        
-        if let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: SectionHeaderView.identifier) as? SectionHeaderView {
-            headerView.titleLabel.text = item.sectionTitle
-            return headerView
-        }
+    func tableView(_ tableView: UITableView, viewForHeaderInSection sectionIndex: Int) -> UIView? {
+        guard
+            let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: SectionHeaderView.identifier) as? SectionHeaderView,
+            let sectionID = dataSource.sectionIdentifier(for: sectionIndex)
+        else { return nil }
 
-        return nil
+        header.titleLabel.text = headerTitle(for: sectionID)
+        return header
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView)

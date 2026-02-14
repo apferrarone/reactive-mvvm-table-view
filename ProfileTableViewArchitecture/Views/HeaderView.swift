@@ -22,7 +22,7 @@ class HeaderView: UIImageView
     lazy var subtitleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .lightGray
-        label.font = UIFont(name: "AvenirNext-Regular", size: 14.0)!
+        label.font = UIFont(name: "AvenirNext-Regular", size: 15.0)!
         label.numberOfLines = 1
         label.lineBreakMode = .byTruncatingTail
         return label
@@ -82,9 +82,9 @@ class HeaderView: UIImageView
             self.subtitleLabel.autoPinEdge(.right, to: .left, of: self.playButtonView, withOffset: -12.0)
             self.subtitleLabel.autoPinEdge(toSuperviewMargin: .bottom)
             
-            self.playButtonView.autoPinEdge(toSuperviewEdge: .right, withInset: 18.0)
+            self.playButtonView.autoPinEdge(toSuperviewEdge: .right, withInset: 36.0)
             self.playButtonView.autoPinEdge(toSuperviewMargin: .bottom)
-            self.playButtonView.autoSetDimensions(to: CGSize(width: 44.0, height: 44.0))
+            self.playButtonView.autoSetDimensions(to: CGSize(width: 56.0, height: 56.0))
         }
         
         self.nameLabel.setContentHuggingPriority(.required, for: .vertical)
